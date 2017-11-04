@@ -55,7 +55,7 @@ void CMemoryBlock::Display(){
 	while (node!= NULL)
 	{
 		
-		cout<<"   "<< node->addr << "         " << node->size << endl;
+		cout<<"   "<< node->addr << "         " << node->size<<"K" << endl;
 		node = node->next;
 
 	}

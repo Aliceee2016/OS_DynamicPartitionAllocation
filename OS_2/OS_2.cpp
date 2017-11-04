@@ -5,7 +5,7 @@
 
 #include "MemoryBlock.h"
 
-
+//◊Óº—  ”¶À„∑®
 
 
 int _tmain(int argc, _TCHAR* argv[])
