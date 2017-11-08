@@ -4,7 +4,11 @@
 
 CMemoryBlock::CMemoryBlock()
 {
+	headBusy = new BlockNode();
+	headBusy->next = NULL;
+	//headBusy->pre = NULL;
 	head = NewMemoryBlock(1);
+
 	/*BlockNode *first = NewMemoryBlock(head);
 	BlockNode *second = NewMemoryBlock(first);
 	BlockNode *third = NewMemoryBlock(second);
@@ -19,12 +23,33 @@ CMemoryBlock::CMemoryBlock()
 	head = Sort(head);
 	
 }
+void CMemoryBlock::InsertBusy(int addr,int size){
+	BlockNode *node = new BlockNode();
+	node->size = size;
+	node->addr = addr;
+	//headBusy->next = node;
+	node->next = headBusy->next;
+	headBusy->next = node;
+
+}
+void CMemoryBlock::DisplayBusy(){
+	BlockNode *node = headBusy->next;
+	cout << " 被占用的分区 ：" << endl << endl;
+	cout << " 起始地址   " << "分区大小" << endl;
+	while (node != NULL)
+	{
+
+		cout << "   " << node->addr << "         " << node->size << "K" << endl;
+		node = node->next;
+
+	}
+}
 BlockNode* CMemoryBlock::NewMemoryBlock(int i){
 	BlockNode *node = new BlockNode();
 //	node->blockId = 1;
 	node->size = 0;
 	node->addr = 100;
-	node->pre = NULL;
+	//node->pre = NULL;
 	node->next = NULL;
 	return node;
 }
@@ -35,12 +60,24 @@ int CMemoryBlock::RandomNum(){
 	}
 	return i;
 }
+void CMemoryBlock::NewMemoryBlock(int addrr, int size){
+	BlockNode *node = new BlockNode();
+	//node->blockId = prenode->blockId + 1;
+	node->size = size;
+	node->addr = addrr;
+	//node->pre = tail;
+	node->next = NULL;
+
+	tail->next = node;
+	tail = node;
+	tail->next = NULL;
+}
 void CMemoryBlock::NewMemoryBlock(){
 	BlockNode *node = new BlockNode();
 	//node->blockId = prenode->blockId + 1;
 	node->size = RandomNum();	
 	node->addr = tail->addr + tail->size+RandomNum();
-	node->pre = tail;
+	//node->pre = tail;
 	node->next = NULL;
 
 	tail->next = node;
@@ -65,6 +102,16 @@ void CMemoryBlock::NewBlock(){
 	
 	 head = Sort(head);
 }
+void CMemoryBlock::RemoveBusy(int addr){
+	BlockNode *node = headBusy;
+	while (node->next->addr!= addr)
+	{
+		node = node->next;
+	}
+	BlockNode *copy = node->next;
+	node->next = copy->next;
+	free(copy);
+}
 int CMemoryBlock::Size(){
 	int num = 0;
 	BlockNode *node = head->next;
@@ -74,6 +121,99 @@ int CMemoryBlock::Size(){
 		node = node->next;
 	}
 	return num;
+}
+void CMemoryBlock::Return(){
+	int leap1 = 0;
+	int leap2 = 0;
+	int re_addr, re_size;
+	cout << "输入回收的地址和大小" << endl;
+	cin >> re_addr >> re_size;
+	BlockNode *node = new BlockNode();
+	node->size = re_size;
+	node->addr = re_addr;
+	RemoveBusy(re_addr);
+	int add = node->size + node->addr;
+	BlockNode *node1 = head->next;
+	while (node1 != NULL){
+		
+		if (add == node1->addr){
+			/*node1->addr = node->addr;
+			node1->size = node->size + node1->size;*/
+			leap1 = 1;
+		}
+		if (node->addr == node1->addr + node1->size){
+			/*node1->size = node->size + node1->size;*/
+			leap2 = 1;
+		}
+		node1 = node1->next;
+	}
+	/*cout << "leap1 = " << leap1 << endl;
+	cout << "leap2 = " << leap2 << endl;*/
+	if (leap1 == 1&&leap2 == 1){
+		BlockNode *node2 = head->next;
+		while (node2 != NULL)
+		{
+			if (node->addr == node2->addr + node2->size){
+				node2->size = node2->size + node->size;
+				break;
+			}
+			node2 = node2->next;
+		}
+		BlockNode *node3 = head->next;
+		while (node3 != NULL){
+			if (add == node3->addr){
+				/*node2->size = node2->size + node->size + node2->next->size;*/
+				break;
+			}
+			node3 = node3->next;
+		}
+		node2->size = node2->size + node3->size;
+		RemoveNode(node3);
+	}
+	else if (leap1 == 1 && leap2 != 1){
+		BlockNode *node2 = head->next;
+		while (node2 != NULL){
+			if (add == node2->addr){
+				node2->addr = node->addr;
+				node2->size = node->size + node2->size;
+				break;
+			}
+			node2 = node2->next;
+		}
+	}
+	else if (leap1 != 1 && leap2 == 1){
+		BlockNode *node2 = head->next;
+		while (node2 != NULL){
+			if (node->addr == node2->addr + node2->size){
+				//node2->addr = node->addr;
+				node2->size = node->size + node2->size;
+				break;
+			}
+			node2 = node2->next;
+		}
+	}
+	else{
+		/*NewMemoryBlock(node->addr, node->size);
+		head = Sort(head);*/
+		Insert(head, node);
+	}
+	head  = Sort(head);
+
+}
+void CMemoryBlock::Insert(BlockNode *head, BlockNode *node){
+	BlockNode *NODE = head;
+	while (NODE->next->size < node->size||NODE->next->size==node->size){
+		NODE = NODE->next;	
+	}
+	if (NODE->next != NULL){
+	node->next = NODE->next;
+	//node->pre = NODE->pre;
+	NODE->next = node;
+	}
+	else
+	{
+		NODE->next = node;
+	}
 }
 
 
@@ -120,11 +260,13 @@ int CMemoryBlock::Dynamic_allocation(){
 	int differece = abs(needSize - node->size);
 	if (differece < 1 || differece == 1){
 		cout << "分配的分区大小为 ：" << node->size << endl;
+		InsertBusy(node->addr, node->size);
 		RemoveNode(node);
 	}
 	else
 	{
 		cout << "分配的分区大小为 ：" << needSize << endl;
+		InsertBusy(node->addr, needSize);
 		ChangeNode(node,needSize);
 	}
 	head = Sort(head);

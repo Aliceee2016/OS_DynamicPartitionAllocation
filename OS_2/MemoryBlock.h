@@ -8,7 +8,7 @@ typedef struct NODE{
 	
 	int size;
 	int addr;
-	struct NODE *pre;
+	//struct NODE *pre;
 	struct NODE *next;
 
 }BlockNode;
@@ -20,8 +20,16 @@ public:
 	void NewBlock();
 	void Display();
 	int Dynamic_allocation();
+	void Return();
+	void DisplayBusy();
+
 	
 private:
+	void RemoveBusy(int addr);
+	void InsertBusy(int addr, int size);
+	void Insert(BlockNode *head, BlockNode *node);
+	int count;
+	BlockNode *headBusy;
 	BlockNode *Sort(BlockNode *head);
 	BlockNode *head;
 	BlockNode *tail;
@@ -36,6 +44,7 @@ private:
 	void ChangeNode(BlockNode *node,int needsize);
 	//void exchangeNode(BlockNode* left, BlockNode* right);
 	//void bubbleSort();
+	void NewMemoryBlock(int addrr, int size);
 	
 };
 

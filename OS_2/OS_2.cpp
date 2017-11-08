@@ -16,7 +16,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cout << " 输入相应的操作得到相应的结果" << endl;
 		cout << " 1  分配内存空间" << endl;
 		cout << " 2  查看内存情况" << endl;
-		/*cout << " 3  创建新的空闲内存块" << endl;*/
+		cout << " 3  回收" << endl;
 		cout << " 0  退出" << endl;
 		
 		cin >> num;
@@ -31,6 +31,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			break;
 		case 1:
 			memory->Dynamic_allocation();
+			memory->Display();
+			break;
+		case 3:
+			memory->DisplayBusy();
+			memory->Return();
 			memory->Display();
 			break;
 		case 0:
